@@ -87,7 +87,6 @@ scanf("%f", &tfourth);
                       ( State avg. electricity price, $/kWh ) ( Yearly system power demand, kWh/yr )
 
 
-
 1) Determine system setup cost
     - Total potential power demand of the system will need to be determined by summing the user's appliance inputs
     - The system cost estimate can then be determined using estimates from:
@@ -101,45 +100,54 @@ scanf("%f", &tfourth);
 
 */
 
+//--------------------------------------------Determine system setup cost estimate
 
-
-
-//--------------- ----------------------------Determine system setup cost estimate
 float system_size_kW = 0;
 
 //potential power demand of the system in kW
-system_size_kW = (1200*first + 900*second + 200*third + 40*fourth +
-                          60*fifth + 75*sixth + 100*seventh + eight*ninth)/1000;
+system_size_kW = (1200*first*tfirst + 900*second*tsecond + 200*third*tthird + 40*fourth +
+                  60*fifth + 75*sixth + 100*seventh + eighth*ninth)/1000;
 
 //plotted size vs. setup cost data in Excel - $2810 per kw
 float system_setup_cost = 2810*system_size_kW;
-//-----------------------------------------------------------------------------End
 
+printf("System setup cost estimate: %f \n", system_setup_cost);
 
 //----------------------------------------- Determine state avg. electricity price
+
 char user_US_state[3];
 
 printf("Enter the two letter abbreviation for the U.S. state in which you are installing the system (e.g. SD for South Dakota):  ");
 scanf("%s", user_US_state);
 
-float state_elec_price = determine_state_elec_price(user_US_state); //returns price in c/kWh
-state_elec_price = state_elec_price/100;    //convert to $/kWh
+//returns price in c/kWh
+float state_elec_price = determine_state_elec_price(user_US_state);
 
-printf("Your state's average electricity price: %4f \n", state_elec_price);
-//---------------------------------------------------------------------------- End
+//convert to $/kWh
+state_elec_price = state_elec_price/100;
 
+printf("Your state's average electricity price: %f \n", state_elec_price);
 
 //------------------------------------------- Determine yearly system power demand
 
+//wattage of all appliances * usage (hrs)
+float daily_appliance_power_kWh = ( 1200*first*tfirst + 900*second*tsecond + 200*third*tthird + (40*fourth +
+                               60*fifth + 75*sixth + 100*seventh + eighth*ninth)*tfourth )/1000;
 
+//yearly power demand
+float yearly_appliance_power_kWh = daily_appliance_power_kWh*365;
 
-//---------------------------------------------------------------------------- End
+printf("System yearly power demand: %f kWh \n", yearly_appliance_power_kWh);
 
+//------------------------------------------- Determine and print payback period (years)
+
+float payback_period_yrs = system_setup_cost/(state_elec_price*yearly_appliance_power_kWh);
+
+printf("Payback period estimate: %f years \n", payback_period_yrs);
 
 
 
 //-------------------------------------------------- End of payback period code portion ---------------------------------------------------------//
-
 
 
 
