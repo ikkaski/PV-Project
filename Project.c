@@ -13,7 +13,7 @@ int main() {
 int first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth, eleventh, twelvth;
 
 // The total times (t for time I guess) that each appliance group will be running, multiplying this with the wattage will yield Watt hours (nearest half hour)
-float tfirst, tsecond, tthird, tfourth, tfifth, tsixth, tseventh, teighth, tninth, ttenth;
+float tfirst, tsecond, tthird, tfourth, tfifth, tsixth, tseventh;
 
 //1200W
 printf("How many of these appliances will run off of this PV system: Fridge, Freezer, Electric Oven, Hair Dryer, Microwave, Toaster Oven, Electric Kettle, or Electric Space Heater? \n");
@@ -67,17 +67,13 @@ printf("How many hours per day will these appliances be running? Round to the ne
 //-------------------------------------------------- Payback period code portion -------------------------------------------------------
 
 /* ( System setup cost ($) ) Payback period = --------------------------------------------------------------------------------- ( State avg. electricity price, $/kWh ) ( Yearly system power demand, kWh/yr )
-
 Determine system setup cost
-
 Total potential power demand of the system will need to be determined by summing the user's appliance inputs
 The system cost estimate can then be determined using estimates from: https://news.energysage.com/how-much-does-the-average-solar-panel-installation-cost-in-the-u-s/
 Determine state avg. electricity price
-
 Get U.S. state from user as two letter input, e.g. SD for South Dakota
 pass the U.S. state into the determine_state_elec_price function to get the electricity price
 Determine yearly system power demand
-
 */
 
 //--------------------------------------------Determine system setup cost estimate
@@ -91,7 +87,7 @@ system_size_kW = (1200*first + 900*second + 200*third + 40*fourth + 60*fifth
 //plotted size vs. setup cost data in Excel - $2810 per kw
 float system_setup_cost = 2810*system_size_kW;
 
-printf("System setup cost estimate: %f \n", system_setup_cost);
+printf("System setup cost estimate: %f \n\n", system_setup_cost);
 
 //----------------------------------------- Determine state avg. electricity price
 
@@ -105,7 +101,7 @@ float state_elec_price = determine_state_elec_price(user_US_state);
 //convert to $/kWh
 state_elec_price = state_elec_price/100;
 
-printf("Your state's average electricity price: %f \n", state_elec_price);
+printf("Your state's average electricity price: %f \n\n", state_elec_price);
 
 //------------------------------------------- Determine yearly system power demand
 
@@ -116,13 +112,13 @@ float daily_appliance_power_kWh = ((18000*tenth + 4500*eleventh)*tfifth + twelvt
 //yearly power demand
 float yearly_appliance_power_kWh = daily_appliance_power_kWh*365;
 
-printf("System yearly power demand: %f kWh \n", yearly_appliance_power_kWh);
+printf("System yearly power demand: %f kWh \n\n", yearly_appliance_power_kWh);
 
 //------------------------------------------- Determine and print payback period (years)
 
 float payback_period_yrs = system_setup_cost/(state_elec_price*yearly_appliance_power_kWh);
 
-printf("Payback period estimate: %f years \n", payback_period_yrs);
+printf("Payback period estimate: %f years \n\n", payback_period_yrs);
 
 //-------------------------------------------------- End of payback period code portion ---------------------------------------------------------//
 //-------------------------------------------------- Start of Panel and Battery Sizing Portion --------------------------------------------------
@@ -131,22 +127,23 @@ float available_power_day;
 float available_power_year;
 float battery_number;
 float irradiance = get_irradiance(user_US_state);
-available_power_day = irradiance*panel_efficiency;
+available_power_day = irradiance*panel_efficiency; //Power output from panel
 available_power_year = available_power_day*365;
-battery_number = daily_appliance_power_kWh / 0.3;
+battery_number = daily_appliance_power_kWh / 2.4; //50% Depth of Discharge
 battery_number = round(battery_number + 1);
 system_size_kW = round(system_size_kW+1);
 float panel_area_total = yearly_appliance_power_kWh / available_power_year;
-printf("You will need %f square meters of solar panels that are 15%% efficient or better. If this will be a rooftop system, keep the individual panel size in mind. Always round up. \n", panel_area_total);
-printf("If your panels do not have built in inverters, you will need a single inverter rated for %f kW or more.",system_size_kW);
-printf("If you plan to use battery backup, you can use %f 12V 50Ah batteries. This is with a 50%% depth of discharge.", battery_number);
+printf("You will need %f square meters of solar panels that are 15%% efficient or better. If this will be a rooftop system, keep the individual panel size in mind. Always round up. \n\n", panel_area_total);
+printf("If your panels do not have built in inverters, you will need a single inverter rated for %f kW or more. \n\n",system_size_kW);
+printf("If you plan to use battery backup, you can use %f 48V 100Ah batteries. This is with a 50%% depth of discharge. \n", battery_number);
+printf("You can also size your own batteries, as long as they meet the load requirement of %f kWh. \n\n", daily_appliance_power_kWh);
+printf("A charge controller will be necessary. You can use a 48V MPPT charge controller with a current rating suited for the panels you choose if you connect the suggested batteries in parallel.\n\n");
 
 return 0;
 
 }
 
 /* determines the avg electricity price to be used in payback period calculation, based on the user-entered U.S. state (the state's two letter abbreviation)
-
 The average electricity prices in this file are taken from: https://www.eia.gov/electricity/state/ */
 float determine_state_elec_price(char * user_US_state) {
 
